@@ -13,13 +13,13 @@ public class SubscriberThread<T> implements Runnable {
 
     private KafkaStream<byte[], byte[]> stream;
     private int threadNum;
-    private Consumer<T> messageFunc;
+    private Consumer<T> onMessageFunc;
     private Deserializer<String,T> deserializer;
 
-    public SubscriberThread(KafkaStream<byte[], byte[]> stream, int threadNum, Consumer<T> messageFunc, Deserializer<String,T> deserializer) {
+    public SubscriberThread(KafkaStream<byte[], byte[]> stream, int threadNum, Consumer<T> onMessageFunc, Deserializer<String,T> deserializer) {
         this.stream = stream;
         this.threadNum = threadNum;
-        this.messageFunc = messageFunc;
+        this.onMessageFunc = onMessageFunc;
         this.deserializer = deserializer;
     }
 
@@ -29,7 +29,7 @@ public class SubscriberThread<T> implements Runnable {
         while (streamIterator.hasNext()) {
             String message = new String(streamIterator.next().message());
             T deserializedMsg = deserializer.deserialize(message); //TODO - class tp topic ?
-            messageFunc.accept(deserializedMsg);
+            onMessageFunc.accept(deserializedMsg);
         }
     }
 }

@@ -48,9 +48,9 @@ public class KafkaSubscriber<T> implements Subscriber<T> {
     }
 
     @Override
-    public void subscribe(String topic, java.util.function.Consumer<T> messageFunc) {
+    public void subscribe(String topic, java.util.function.Consumer<T> onMessageFunc) {
         List<KafkaStream<byte[], byte[]>> streams = streamsMap.get(topic);
-        IntStream.range(0, numOfThreads).forEach(threadNum -> threadPoll.execute(new SubscriberThread<T>(streams.get(threadNum), threadNum, messageFunc, deserializer)));
+        IntStream.range(0, numOfThreads).forEach(threadNum -> threadPoll.execute(new SubscriberThread<T>(streams.get(threadNum), threadNum, onMessageFunc, deserializer)));
     }
 
     @Override
