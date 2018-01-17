@@ -11,6 +11,7 @@
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="disstribution" target="1.9" />
+      <module name="KafkaPlay" target="1.9" />
       <module name="YardendKafkaPlay" target="1.9" />
     </bytecodeTargetLevel>
   </component>

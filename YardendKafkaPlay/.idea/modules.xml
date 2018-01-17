@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/YardendKafkaPlay.iml" filepath="$PROJECT_DIR$/YardendKafkaPlay.iml" />
+      <module fileurl="file://$PROJECT_DIR$/KafkaPlay.iml" filepath="$PROJECT_DIR$/KafkaPlay.iml" />
       <module fileurl="file://$PROJECT_DIR$/disstribution/disstribution.iml" filepath="$PROJECT_DIR$/disstribution/disstribution.iml" />
     </modules>
   </component>
