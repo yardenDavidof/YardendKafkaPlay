@@ -4,8 +4,12 @@ import kafka.consumer.Consumer;
 import kafka.consumer.ConsumerConfig;
 import kafka.consumer.KafkaStream;
 import kafka.javaapi.consumer.ConsumerConnector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import serialization.deserializers.Deserializer;
 import serialization.factories.SerializationFactory;
+import utils.ExecutorsUtils;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +24,7 @@ import java.util.stream.IntStream;
  */
 public class KafkaSubscriber<T> implements Subscriber<T> {
 
+    private static final Logger logger = LoggerFactory.getLogger(KafkaSubscriber.class);
     private final ConsumerConnector consumerConnector;
     private ExecutorService threadPoll;
     private String topic;
@@ -49,20 +54,15 @@ public class KafkaSubscriber<T> implements Subscriber<T> {
 
     @Override
     public void subscribe(String topic, java.util.function.Consumer<T> onMessageFunc) {
+        logger.trace("start sunscribe of {} to topic {}", getClass().getSimpleName(), topic);
         List<KafkaStream<byte[], byte[]>> streams = streamsMap.get(topic);
-        IntStream.range(0, numOfThreads).forEach(threadNum -> threadPoll.execute(new SubscriberThread<T>(streams.get(threadNum), threadNum, onMessageFunc, deserializer)));
+        IntStream.range(0, numOfThreads).forEach(threadNum -> threadPoll.execute(new ConsumerThread<T>(streams.get(threadNum), threadNum, onMessageFunc, deserializer)));
     }
 
     @Override
     public void close() throws Exception {
+        logger.info("close {}", getClass().getSimpleName());
         consumerConnector.shutdown();
-        threadPoll.shutdown();
-        try{
-            if (!threadPoll.awaitTermination(10000, TimeUnit.MILLISECONDS)){
-                threadPoll.shutdownNow();
-            }
-        }catch (InterruptedException e){
-            threadPoll.shutdownNow();
-        }
+        ExecutorsUtils.shutdownExecutor(threadPoll);
     }
 }
