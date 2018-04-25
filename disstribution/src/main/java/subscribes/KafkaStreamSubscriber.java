@@ -32,10 +32,9 @@ public class KafkaStreamSubscriber<T> implements Subscriber<T> {
     private Deserializer<String, T> deserializer;
     private Map<String, List<KafkaStream<byte[], byte[]>>> streamsMap;
 
-    public KafkaStreamSubscriber(String consumerGroup, String topic, SerializationFactory<String, T> serializationFactory) {
+    public KafkaStreamSubscriber(String topic, Class<T> targetClass, SerializationFactory<T, String> serializationFactory, Properties properties) {
         this.topic = topic;
-        this.deserializer = serializationFactory.createDeserializer();
-        Properties properties = ConsumerPropertiesBuilder.createConsumerProperties(consumerGroup);
+        this.deserializer = serializationFactory.createDeserializer(targetClass);
         CalcNumOfPartitions(properties);
         consumerConnector = Consumer.createJavaConsumerConnector(new ConsumerConfig(properties));
         threadPoll = Executors.newFixedThreadPool(partitionsNum);

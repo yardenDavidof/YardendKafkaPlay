@@ -8,8 +8,8 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Created by Yarden on 1/14/2018.
  */
-public interface Publisher<T> extends AutoCloseable{
+public interface Publisher extends AutoCloseable{
 
-    Optional<RecordMetadata> publish(T message, String topic);
-    CompletableFuture<Optional<RecordMetadata>> publishAsync(T message, String topic);
+    <T> Optional<RecordMetadata> publish(T message, String topic);
+    <T> CompletableFuture<Optional<RecordMetadata>> publishAsync(T message, String topic);
 }

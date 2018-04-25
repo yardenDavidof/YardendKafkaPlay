@@ -8,7 +8,7 @@ import subscribes.Subscriber;
  */
 public interface DistributionFactory {
 
-    <T> Publisher<T> createPublisher();
+     Publisher createPublisher();
 
-    <T> Subscriber<T> createSubscriber(String topic);
+    <T> Subscriber<T> createSubscriber(String topic, Class<T> targetClass);
 }

@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import serialization.deserializers.Deserializer;
 
+import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
@@ -18,7 +19,7 @@ public class StreamReaderThread<T> implements Runnable {
     private KafkaStream<byte[], byte[]> stream;
     private int threadNum;
     private Consumer<T> onMessageFunc;
-    private Deserializer<String,T> deserializer;
+    private Deserializer<String, T> deserializer;
 
     public StreamReaderThread(KafkaStream<byte[], byte[]> stream, int threadNum, Consumer<T> onMessageFunc, Deserializer<String, T> deserializer) {
         this.stream = stream;
@@ -34,8 +35,8 @@ public class StreamReaderThread<T> implements Runnable {
             MessageAndMetadata<byte[], byte[]> currIt = streamIterator.next();
             String message = new String(currIt.message());
             logger.trace("message recieved at {} number {} from topic: {}, partition:{}. /n message: {}", getClass().getSimpleName(), threadNum, currIt.topic(), currIt.partition(), message);
-            T deserializedMsg = deserializer.deserialize(message);
-            onMessageFunc.accept(deserializedMsg);
+            Optional<T> deserializedMsg = deserializer.deserialize(message);
+            deserializedMsg.ifPresentOrElse(onMessageFunc::accept, () -> logger.error("message: {} didnt processed because of an deserializarion problem", message));
         }
     }
 }

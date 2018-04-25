@@ -24,26 +24,25 @@ import java.util.concurrent.Executors;
 /**
  * Created by Yarden on 1/14/2018.
  */
-public class KafkaPublisher<T> implements Publisher<T> {
+public class KafkaPublisher implements Publisher {
 
     private static final Logger logger = LoggerFactory.getLogger(KafkaPublisher.class);
     private ExecutorService threadpoll = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 4);
     private Producer<Long, String> producer;
-    private Serializer<T, String> serializer;
+    private Serializer<?, String> serializer;
 
-    public KafkaPublisher(SerializationFactory<String, T> serializationFactory) {
+    public KafkaPublisher(SerializationFactory<?, String> serializationFactory, Properties props) {
         this.serializer = serializationFactory.createSerializer();
-        this.producer = createProducer();
-    }
-
-    private Producer<Long, String> createProducer() {
-        Properties properties = ProducerPropertiesBuilder.createProducerProperties();
-        return new KafkaProducer<>(properties);
+        this.producer = new KafkaProducer<>(props);
     }
 
     @Override
-    public Optional<RecordMetadata> publish(T message, String topic) {
-        String serializedMessage = serializer.serialize(message);
+    public <T> Optional<RecordMetadata> publish(T message, String topic) {
+        Optional<String> serializedMessage = ((Serializer<T,String>)serializer).serialize(message);
+        if (!serializedMessage.isPresent()) {
+            return Optional.empty();
+        }
+
         try {
             final ProducerRecord<Long, String> record =
                     new ProducerRecord(topic, OffsetDateTime.now(),
@@ -64,7 +63,7 @@ public class KafkaPublisher<T> implements Publisher<T> {
     }
 
     @Override
-    public CompletableFuture<Optional<RecordMetadata>> publishAsync(T message, String topic) {
+    public <T> CompletableFuture<Optional<RecordMetadata>> publishAsync(T message, String topic) {
         return CompletableFuture.supplyAsync(() -> publish(message, topic), threadpoll);
     }
 
