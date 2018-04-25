@@ -45,8 +45,8 @@ public class KafkaPublisher implements Publisher {
 
         try {
             final ProducerRecord<Long, String> record =
-                    new ProducerRecord(topic, OffsetDateTime.now(),
-                            serializedMessage);
+                    new ProducerRecord(topic, System.currentTimeMillis(),
+                            serializedMessage.get());
             OffsetDateTime startTime = OffsetDateTime.now();
             RecordMetadata metadata = producer.send(record).get();
             Duration timeElasped = Duration.between(startTime, OffsetDateTime.now());

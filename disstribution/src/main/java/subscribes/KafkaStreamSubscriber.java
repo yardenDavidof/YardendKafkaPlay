@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.IntStream;
@@ -61,7 +62,13 @@ public class KafkaStreamSubscriber<T> implements Subscriber<T> {
     public void subscribe(java.util.function.Consumer<T> onMessageFunc) {
         logger.trace("start sunscribe of {} to topic {}", getClass().getSimpleName(), topic);
         List<KafkaStream<byte[], byte[]>> streams = streamsMap.get(topic);
-        IntStream.range(0, partitionsNum).forEach(partitionNum -> threadPoll.execute(new StreamReaderThread<T>(streams.get(partitionNum), partitionNum, onMessageFunc, deserializer)));
+        IntStream.range(0, partitionsNum).forEach(partitionNum -> {
+            CompletableFuture.runAsync(new StreamReaderThread<T>(streams.get(partitionNum), partitionNum, onMessageFunc, deserializer),threadPoll).
+                    exceptionally(e->{
+                        logger.error("consumer thread failed", e);
+                        return null;
+                    });
+        });
     }
 
     @Override

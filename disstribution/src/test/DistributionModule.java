@@ -4,7 +4,9 @@ import com.google.inject.name.Named;
 import factories.DistributionFactory;
 import factories.KafkaDistributionFactory;
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.common.serialization.LongDeserializer;
 import org.apache.kafka.common.serialization.LongSerializer;
+import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import serialization.factories.JacksonSerializationFactory;
 import serialization.factories.SerializationFactory;
@@ -13,8 +15,8 @@ import java.util.Properties;
 
 public class DistributionModule extends AbstractModule {
 
-    private static final String BOOTSTRAP_SERVERS = "localhost:9091";
-    private static final String ZOOKEEPER_CONNECT = "localhost:8081";
+    private static final String BOOTSTRAP_SERVERS = "localhost:9092";
+    private static final String ZOOKEEPER_CONNECT = "localhost:2181";
     private static final String CONSUMER_GROUP = "default";
 
     @Override
@@ -27,8 +29,11 @@ public class DistributionModule extends AbstractModule {
     Properties consumerPropertiesProvider(){
         final Properties props = new Properties();
         props.put("zookeeper.connect", ZOOKEEPER_CONNECT);
+        props.put("bootstrap.servers", BOOTSTRAP_SERVERS);
         props.put("group.id", CONSUMER_GROUP);
-        props.put("zookeeper.session.timeout.ms", "400");
+        props.put("key.deserializer", LongDeserializer.class.getName());
+        props.put("value.deserializer", StringDeserializer.class.getName());
+        props.put("zookeeper.session.timeout.ms", "20000");
         props.put("zookeeper.sync.time.ms", "200");
         props.put("auto.commit.interval.ms", "1000"); // TODO - optimize properties
         return props;

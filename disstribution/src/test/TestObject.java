@@ -7,12 +7,24 @@ public class TestObject {
     private UUID uuid;
     private int age;
     private OffsetDateTime creationTime;
+    private long time = System.currentTimeMillis();
+
+
+    public TestObject(){}
 
     public TestObject(String name, int age) {
         this.name = name;
         this.uuid = UUID.randomUUID();
         this.age = age;
         this.creationTime = OffsetDateTime.now();
+    }
+
+    public long getTime() {
+        return time;
+    }
+
+    public void setTime(long time) {
+        this.time = time;
     }
 
     public String getName() {

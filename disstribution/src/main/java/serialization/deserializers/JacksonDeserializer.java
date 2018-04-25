@@ -1,6 +1,9 @@
 package serialization.deserializers;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.apache.kafka.common.protocol.types.Field;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +19,10 @@ public class JacksonDeserializer<T> implements Deserializer<String, T> {
 
     public JacksonDeserializer(Class<T> targetClass) {
         this.targetClass = targetClass;
+        mapper.findAndRegisterModules();
+        mapper.registerModule(new JavaTimeModule());
+        mapper.disable(DeserializationFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE);
+
     }
 
     @Override
